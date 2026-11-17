@@ -38,6 +38,20 @@ Si cierras la aplicación mientras hay tareas activas, estas se interrumpen y te
 - Windows con Microsoft WebView2.
 - Conexión a Internet y una cuenta de Crunchyroll cuando el servicio la requiera.
 - Archivos y carpetas de la distribución completos y en sus ubicaciones correspondientes.
+- Los binarios `ffmpeg.exe` y `ffprobe.exe` deben encontrarse en `crunchyroll-workstation\assets`.
+
+### Instalar FFmpeg
+
+Los binarios no están incluidos en el repositorio porque GitHub no permite archivos superiores a 100 MB.
+
+Desde la raíz del proyecto, ejecuta `DESCARGAR_FFMPEG.bat`. El programa descargará desde [la distribución oficial para Windows enlazada por FFmpeg](https://ffmpeg.org/download.html), extraerá `ffmpeg.exe` y `ffprobe.exe` y los colocará automáticamente en `crunchyroll-workstation\assets`.
+
+Antes de iniciar la aplicación o crear la distribución, comprueba que existan ambos archivos:
+
+```text
+crunchyroll-workstation/assets/ffmpeg.exe
+crunchyroll-workstation/assets/ffprobe.exe
+```
 
 ## Archivos y disponibilidad
 
