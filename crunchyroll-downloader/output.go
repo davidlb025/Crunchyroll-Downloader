@@ -1,0 +1,48 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+)
+
+// mergeEverything merges audio, video and subtitles in a single MKV container
+func mergeEverything(env jobEnv, videoFile, audioFile, subsFile, outputFile string, info EpisodeInfo) error {
+	args := []string{
+		"-i", videoFile,
+		"-i", audioFile,
+	}
+
+	if subsFile != "" {
+		args = append(args,
+			"-i", subsFile,
+			"-c:s", "copy",
+			"-metadata:s:s:0", fmt.Sprintf("title=%s", languageNames[env.subtitlesLang]),
+		)
+	}
+
+	args = append(args,
+		"-c:v", "copy", "-c:a", "copy",
+		"-metadata:g", "title="+fmt.Sprintf("%s - %s", formatSeasonEpisode(info.EpisodeMetadata.SeasonNumber, info.EpisodeMetadata.EpisodeNumber), info.Title),
+		"-metadata:g", "show="+info.EpisodeMetadata.SeriesTitle,
+		"-metadata:g", "track="+fmt.Sprintf("%v", info.EpisodeMetadata.EpisodeNumber),
+		"-metadata:g", "season_number="+fmt.Sprintf("%v", info.EpisodeMetadata.EpisodeNumber),
+		outputFile,
+	)
+
+	cmd := exec.CommandContext(env.context(), "ffmpeg", args...)
+	if err := cmd.Run(); err != nil {
+		_ = os.Remove(outputFile)
+		if env.cancelled() {
+			return errCancelled
+		}
+		return fmt.Errorf("ffmpeg mux: %w", err)
+	}
+
+	_ = os.Remove(videoFile)
+	_ = os.Remove(audioFile)
+	_ = os.Remove(subsFile)
+
+	jobPrintf(env, "\nDownload finished! Output file: %s\n\n", outputFile)
+	return nil
+}
